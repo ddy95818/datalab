@@ -143,7 +143,7 @@ NOTES:
  *   Rating: 1
  */
 int bitXor(int x, int y) {
-  return 2;
+  return (~((~x)&(~y)))&(~(x&y));
 }
 /* 
  * tmin - return minimum two's complement integer 
@@ -152,9 +152,8 @@ int bitXor(int x, int y) {
  *   Rating: 1
  */
 int tmin(void) {
-
-  return 2;
-
+  //1000 0000 0000 0000 0000 0000 0000 0000
+  return 1 << 31;
 }
 //2
 /*
@@ -165,7 +164,15 @@ int tmin(void) {
  *   Rating: 1
  */
 int isTmax(int x) {
-  return 2;
+  /*
+  if(x == (0xffffffff >> 1))
+    return 1;
+  else
+    return 0;
+   */
+  //0111 1111 1111 1111 1111 1111 1111 1111
+  //1111 1111 1111 1111 1111 1111 1111 1111 -> 特例
+  return (!((~(x+1))^x))&((!!(x+1)^0x0));
 }
 /* 
  * allOddBits - return 1 if all odd-numbered bits in word set to 1
@@ -176,7 +183,14 @@ int isTmax(int x) {
  *   Rating: 2
  */
 int allOddBits(int x) {
-  return 2;
+  /*
+  int mask = 0xAAAAAAAA;
+   */
+  int A     = 0xA;
+  int AA    = A | (A<<4);
+  int AAA   = AA | (AA<<8);
+  int mask  = AAA | (AAA<<16);
+  return !((mask & x) ^ mask);
 }
 /* 
  * negate - return -x 
@@ -186,7 +200,7 @@ int allOddBits(int x) {
  *   Rating: 2
  */
 int negate(int x) {
-  return 2;
+  return ~x+1;
 }
 //3
 /* 
@@ -199,7 +213,16 @@ int negate(int x) {
  *   Rating: 3
  */
 int isAsciiDigit(int x) {
-  return 2;
+  //condition 1: 0000...26个
+  //  x >>= 6 -->0
+  //condition 2: 00...0011xxxx
+  //  ( x >>= 4 ) ^ 0x3 ==0
+  //condition 3: 
+  //  ( ( ( x & 0xf ) - A ) >> 31 ) == 1
+  /*condition1 && condition2 && condition3*/
+  //return ( !(x >> 6) ) && (!((x >> 4) ^ 0x3)) && (((x & 0xf) - 0xA) >> 31);
+  //不能用减号
+  return ( !(x >> 6) ) && (!((x >> 4) ^ 0x3)) && (((x & 0xf) + (~0xA)+1) >> 31);
 }
 /* 
  * conditional - same as x ? y : z 
@@ -209,7 +232,9 @@ int isAsciiDigit(int x) {
  *   Rating: 3
  */
 int conditional(int x, int y, int z) {
-  return 2;
+  //(expr & y) | (expr & z)
+  int mask = ((!!x) << 31) >> 31;
+  return ((~mask) & z) | (mask & y);
 }
 /* 
  * isLessOrEqual - if x <= y  then return 1, else return 0 
@@ -219,7 +244,21 @@ int conditional(int x, int y, int z) {
  *   Rating: 3
  */
 int isLessOrEqual(int x, int y) {
-  return 2;
+  //condition 1: x == y
+  // !(x^y)
+  //condition 2: x+  y- 一定不行
+  //condition 3: x-  y+ 一定行
+  //condition 4: x+  y+  或 x-  y-
+  int signX = (x>>31) & 0x1;
+  int signY = (y>>31) & 0x1;
+  int cond1 = !(x^y);
+  int cond2 = !((~signX) & signY);
+  int cond3 = signX & (~signY);
+  int cond4 = ((x + (~y) +1)>>31)&0x1;
+  
+  //== 或者 <=, <=时必须对符号做判断
+  //            要么是一定行的，要么是需要运算才能判断的
+  return cond1 || (cond2 && (cond3 || cond4));
 }
 //4
 /* 
