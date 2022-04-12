@@ -256,9 +256,10 @@ int isLessOrEqual(int x, int y) {
   int cond3 = signX & (~signY);
   int cond4 = ((x + (~y) +1)>>31)&0x1;
   
-  //== 或者 <=, <=时必须对符号做判断
+  //== 或者 <, <时必须对符号做判断
   //            要么是一定行的，要么是需要运算才能判断的
-  return cond1 || (cond2 && (cond3 || cond4));
+  return cond1 | (cond2 & (cond3 | cond4));
+  //条件或 和 逻辑或 一样
 }
 //4
 /* 
@@ -270,7 +271,9 @@ int isLessOrEqual(int x, int y) {
  *   Rating: 4 
  */
 int logicalNeg(int x) {
-  return 2;
+  int negX = ~x + 1;
+  int sign = (negX | x) >> 31;
+  return sign+1;
 }
 /* howManyBits - return the minimum number of bits required to represent x in
  *             two's complement
@@ -285,7 +288,24 @@ int logicalNeg(int x) {
  *  Rating: 4
  */
 int howManyBits(int x) {
-  return 0;
+  int iszero = !x;
+  int flag = x>>31;
+  int mask = ((!!x)<<31)>>31;
+  x = ((~flag) & x) | (flag & (~x));
+  int bit_16, bit_8, bit_4, bit_2, bit_1, bit_0;
+  bit_16 = (!((!!(x >> 16)) ^ 0x1))<<4;
+  x>>=bit_16;
+  bit_8 = (!((!!(x >> 8)) ^ 0x1))<<3;
+  x>>=bit_8;
+  bit_4 = (!((!!(x >> 4)) ^ 0x1))<<2;
+  x>>=bit_4;
+  bit_2 = (!((!!(x >> 2)) ^ 0x1))<<1;
+  x>>=bit_2;
+  bit_1 = (!((!!(x >> 1)) ^ 0x1))<<0;
+  x>>=bit_1;
+  bit_0 = x;
+  int res = bit_0+bit_1+bit_2+bit_4+bit_8+bit_16+1;
+  return iszero | (mask & res);
 }
 //float
 /* 
@@ -300,7 +320,25 @@ int howManyBits(int x) {
  *   Rating: 4
  */
 unsigned floatScale2(unsigned uf) {
-  return 2;
+  unsigned sign = (uf>>31) & 0x1;
+  unsigned exp = (uf>>23) & 0xff;
+  unsigned frac = uf & 0x7fffff;
+  //0
+  if((exp==0) && (frac==0))
+    return uf;
+  //NaN 或 无穷大
+  if(exp==0xff)
+    return uf;
+  //denormalize
+  if(exp==0){
+    //E = 1-127=-126
+    //frac等于小数字段的值，规格化的时候frac+1才是小数字段的值
+    frac = frac << 1;
+    return (sign<<31) | frac;
+  }
+  //normalize
+  exp++;
+  return (sign<<31) | (exp<<23) | (frac);
 }
 /* 
  * floatFloat2Int - Return bit-level equivalent of expression (int) f
