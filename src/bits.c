@@ -354,6 +354,7 @@ unsigned floatScale2(unsigned uf) {
  */
 int floatFloat2Int(unsigned uf) {
   //我在我的虚拟机上运行错误，在公司的Linux上(ubuntu)没有问题
+  //终于发现问题了，383和385写返回了
   unsigned sign = (uf>>31) & 0x1;
   unsigned exp = (uf>>23) & 0xff;
   unsigned frac = uf & 0x7fffff;
@@ -379,9 +380,9 @@ int floatFloat2Int(unsigned uf) {
     return 0; //1.xxx/2  -> 0
 
   if(E>=23)
-    return frac = frac << (E-23);
+    frac = frac << (E-23);
   else
-    return frac = frac >> (23-E);
+    frac = frac >> (23-E);
 
   if(sign)
     return (~frac)+1;
@@ -401,5 +402,29 @@ int floatFloat2Int(unsigned uf) {
  *   Rating: 4
  */
 unsigned floatPower2(int x) {
-    return 2;
+  /*
+  * 非规格化:
+  * min: 2^-126 * 2^-23  == 2^-149
+  * max: (2^-1 + 2^-2 + ... + 2^-23)*2^-126
+  */
+  /*
+  * 规格化：
+  * min: 0000 0001 -> 2^(1-127)  == 2^-126
+  * max: 1111 1110 -> 2^(254-127) == 2^127 * (1+2^-1+2^-2+...+2^-23)  < 2^128
+  */
+  //我在我的虚拟机上运行超时了
+  if(x<-149)
+    return 0;
+  else if(x<-126)
+  {
+    int shift =23+(x+126);
+    return 1<<shift;
+  }
+  else if(x<128)
+  {
+    int expr = x+127;
+    return expr<<23;
+  }
+  else
+    return 0xff << 23;
 }
