@@ -353,7 +353,39 @@ unsigned floatScale2(unsigned uf) {
  *   Rating: 4
  */
 int floatFloat2Int(unsigned uf) {
-  return 2;
+  //我在我的虚拟机上运行错误，在公司的Linux上(ubuntu)没有问题
+  unsigned sign = (uf>>31) & 0x1;
+  unsigned exp = (uf>>23) & 0xff;
+  unsigned frac = uf & 0x7fffff;
+  //0
+  if((exp==0)&&(frac==0))
+    return 0;
+  //NaN 或 无穷大
+  if(exp==0xff)
+    return 1<<31;
+  //denormalize
+  if(exp==0){
+    //E = 1-127=-126
+    //0.xxxx < 1
+    return 0;
+  }
+  //normalize
+  int E = exp - 127;
+  //M 1.xxxxxx
+  frac = frac | (1<<23);
+  if(E>31)
+    return 1<<31;
+  else if(E<0)
+    return 0; //1.xxx/2  -> 0
+
+  if(E>=23)
+    return frac = frac << (E-23);
+  else
+    return frac = frac >> (23-E);
+
+  if(sign)
+    return (~frac)+1;
+  return frac;
 }
 /* 
  * floatPower2 - Return bit-level equivalent of the expression 2.0^x
