@@ -1,8 +1,8 @@
-/* 
- * CS:APP Data Lab 
- * 
+/*
+ * CS:APP Data Lab
+ *
  * <Please put your name and userid here>
- * 
+ *
  * bits.c - Source file with your solutions to the Lab.
  *          This is the file you will hand in to your instructor.
  *
@@ -10,7 +10,7 @@
  * compiler. You can still use printf for debugging without including
  * <stdio.h>, although you might get a compiler warning. In general,
  * it's not good practice to ignore compiler warnings, but in this
- * case it's OK.  
+ * case it's OK.
  */
 
 #if 0
@@ -132,49 +132,51 @@ NOTES:
  *      the correct answers.
  */
 
-
 #endif
-//1
-/* 
- * bitXor - x^y using only ~ and & 
+// 1
+/*
+ * bitXor - x^y using only ~ and &
  *   Example: bitXor(4, 5) = 1
  *   Legal ops: ~ &
  *   Max ops: 14
  *   Rating: 1
  */
-int bitXor(int x, int y) {
-  return (~((~x)&(~y)))&(~(x&y));
+int bitXor(int x, int y)
+{
+  return (~((~x) & (~y))) & (~(x & y));
 }
-/* 
- * tmin - return minimum two's complement integer 
+/*
+ * tmin - return minimum two's complement integer
  *   Legal ops: ! ~ & ^ | + << >>
  *   Max ops: 4
  *   Rating: 1
  */
-int tmin(void) {
-  //1000 0000 0000 0000 0000 0000 0000 0000
+int tmin(void)
+{
+  // 1000 0000 0000 0000 0000 0000 0000 0000
   return 1 << 31;
 }
-//2
+// 2
 /*
  * isTmax - returns 1 if x is the maximum, two's complement number,
- *     and 0 otherwise 
+ *     and 0 otherwise
  *   Legal ops: ! ~ & ^ | +
  *   Max ops: 10
  *   Rating: 1
  */
-int isTmax(int x) {
+int isTmax(int x)
+{
   /*
   if(x == (0xffffffff >> 1))
     return 1;
   else
     return 0;
    */
-  //0111 1111 1111 1111 1111 1111 1111 1111
-  //1111 1111 1111 1111 1111 1111 1111 1111 -> 特例
-  return (!((~(x+1))^x))&((!!(x+1)^0x0));
+  // 0111 1111 1111 1111 1111 1111 1111 1111
+  // 1111 1111 1111 1111 1111 1111 1111 1111 -> 特例
+  return (!((~(x + 1)) ^ x)) & ((!!(x + 1) ^ 0x0));
 }
-/* 
+/*
  * allOddBits - return 1 if all odd-numbered bits in word set to 1
  *   where bits are numbered from 0 (least significant) to 31 (most significant)
  *   Examples allOddBits(0xFFFFFFFD) = 0, allOddBits(0xAAAAAAAA) = 1
@@ -182,28 +184,30 @@ int isTmax(int x) {
  *   Max ops: 12
  *   Rating: 2
  */
-int allOddBits(int x) {
+int allOddBits(int x)
+{
   /*
   int mask = 0xAAAAAAAA;
    */
-  int A     = 0xA;
-  int AA    = A | (A<<4);
-  int AAA   = AA | (AA<<8);
-  int mask  = AAA | (AAA<<16);
+  int A = 0xA;
+  int AA = A | (A << 4);
+  int AAA = AA | (AA << 8);
+  int mask = AAA | (AAA << 16);
   return !((mask & x) ^ mask);
 }
-/* 
- * negate - return -x 
+/*
+ * negate - return -x
  *   Example: negate(1) = -1.
  *   Legal ops: ! ~ & ^ | + << >>
  *   Max ops: 5
  *   Rating: 2
  */
-int negate(int x) {
-  return ~x+1;
+int negate(int x)
+{
+  return ~x + 1;
 }
-//3
-/* 
+// 3
+/*
  * isAsciiDigit - return 1 if 0x30 <= x <= 0x39 (ASCII codes for characters '0' to '9')
  *   Example: isAsciiDigit(0x35) = 1.
  *            isAsciiDigit(0x3a) = 0.
@@ -212,68 +216,72 @@ int negate(int x) {
  *   Max ops: 15
  *   Rating: 3
  */
-int isAsciiDigit(int x) {
-  //condition 1: 0000...26个
-  //  x >>= 6 -->0
-  //condition 2: 00...0011xxxx
-  //  ( x >>= 4 ) ^ 0x3 ==0
-  //condition 3: 
-  //  ( ( ( x & 0xf ) - A ) >> 31 ) == 1
+int isAsciiDigit(int x)
+{
+  // condition 1: 0000...26个
+  //   x >>= 6 -->0
+  // condition 2: 00...0011xxxx
+  //   ( x >>= 4 ) ^ 0x3 ==0
+  // condition 3:
+  //   ( ( ( x & 0xf ) - A ) >> 31 ) == 1
   /*condition1 && condition2 && condition3*/
-  //return ( !(x >> 6) ) && (!((x >> 4) ^ 0x3)) && (((x & 0xf) - 0xA) >> 31);
+  // return ( !(x >> 6) ) && (!((x >> 4) ^ 0x3)) && (((x & 0xf) - 0xA) >> 31);
   //不能用减号
-  return ( !(x >> 6) ) && (!((x >> 4) ^ 0x3)) && (((x & 0xf) + (~0xA)+1) >> 31);
+  return (!(x >> 6)) && (!((x >> 4) ^ 0x3)) && (((x & 0xf) + (~0xA) + 1) >> 31);
 }
-/* 
- * conditional - same as x ? y : z 
+/*
+ * conditional - same as x ? y : z
  *   Example: conditional(2,4,5) = 4
  *   Legal ops: ! ~ & ^ | + << >>
  *   Max ops: 16
  *   Rating: 3
  */
-int conditional(int x, int y, int z) {
+int conditional(int x, int y, int z)
+{
   //(expr & y) | (expr & z)
   int mask = ((!!x) << 31) >> 31;
   return ((~mask) & z) | (mask & y);
 }
-/* 
- * isLessOrEqual - if x <= y  then return 1, else return 0 
+/*
+ * isLessOrEqual - if x <= y  then return 1, else return 0
  *   Example: isLessOrEqual(4,5) = 1.
  *   Legal ops: ! ~ & ^ | + << >>
  *   Max ops: 24
  *   Rating: 3
  */
-int isLessOrEqual(int x, int y) {
-  //condition 1: x == y
-  // !(x^y)
-  //condition 2: x+  y- 一定不行
-  //condition 3: x-  y+ 一定行
-  //condition 4: x+  y+  或 x-  y-
-  int signX = (x>>31) & 0x1;
-  int signY = (y>>31) & 0x1;
-  int cond1 = !(x^y);
+int isLessOrEqual(int x, int y)
+{
+  // condition 1: x == y
+  //  !(x^y)
+  // condition 2: x+  y- 一定不行
+  // condition 3: x-  y+ 一定行
+  // condition 4: x+  y+  或 x-  y-
+  int signX = (x >> 31) & 0x1;
+  int signY = (y >> 31) & 0x1;
+  int cond1 = !(x ^ y);
   int cond2 = !((~signX) & signY);
   int cond3 = signX & (~signY);
-  int cond4 = ((x + (~y) +1)>>31)&0x1;
-  
+  int cond4 = ((x + (~y) + 1) >> 31) & 0x1;
+
   //== 或者 <, <时必须对符号做判断
   //            要么是一定行的，要么是需要运算才能判断的
   return cond1 | (cond2 & (cond3 | cond4));
   //条件或 和 逻辑或 一样
 }
-//4
-/* 
- * logicalNeg - implement the ! operator, using all of 
+// 4
+/*
+ * logicalNeg - implement the ! operator, using all of
  *              the legal operators except !
  *   Examples: logicalNeg(3) = 0, logicalNeg(0) = 1
  *   Legal ops: ~ & ^ | + << >>
  *   Max ops: 12
- *   Rating: 4 
+ *   Rating: 4
  */
-int logicalNeg(int x) {
+int logicalNeg(int x)
+{
   int negX = ~x + 1;
   int sign = (negX | x) >> 31;
-  return sign+1;
+  return sign + 1;
 }
 /* howManyBits - return the minimum number of bits required to represent x in
  *             two's complement
@@ -287,28 +295,29 @@ int logicalNeg(int x) {
  *  Max ops: 90
  *  Rating: 4
  */
-int howManyBits(int x) {
+int howManyBits(int x)
+{
   int iszero = !x;
-  int flag = x>>31;
-  int mask = ((!!x)<<31)>>31;
+  int flag = x >> 31;
+  int mask = ((!!x) << 31) >> 31;
   x = ((~flag) & x) | (flag & (~x));
   int bit_16, bit_8, bit_4, bit_2, bit_1, bit_0;
-  bit_16 = (!((!!(x >> 16)) ^ 0x1))<<4;
-  x>>=bit_16;
-  bit_8 = (!((!!(x >> 8)) ^ 0x1))<<3;
-  x>>=bit_8;
-  bit_4 = (!((!!(x >> 4)) ^ 0x1))<<2;
-  x>>=bit_4;
-  bit_2 = (!((!!(x >> 2)) ^ 0x1))<<1;
-  x>>=bit_2;
-  bit_1 = (!((!!(x >> 1)) ^ 0x1))<<0;
-  x>>=bit_1;
+  bit_16 = (!((!!(x >> 16)) ^ 0x1)) << 4;
+  x >>= bit_16;
+  bit_8 = (!((!!(x >> 8)) ^ 0x1)) << 3;
+  x >>= bit_8;
+  bit_4 = (!((!!(x >> 4)) ^ 0x1)) << 2;
+  x >>= bit_4;
+  bit_2 = (!((!!(x >> 2)) ^ 0x1)) << 1;
+  x >>= bit_2;
+  bit_1 = (!((!!(x >> 1)) ^ 0x1)) << 0;
+  x >>= bit_1;
   bit_0 = x;
-  int res = bit_0+bit_1+bit_2+bit_4+bit_8+bit_16+1;
+  int res = bit_0 + bit_1 + bit_2 + bit_4 + bit_8 + bit_16 + 1;
   return iszero | (mask & res);
 }
-//float
-/* 
+// float
+/*
  * floatScale2 - Return bit-level equivalent of expression 2*f for
  *   floating point argument f.
  *   Both the argument and result are passed as unsigned int's, but
@@ -319,28 +328,30 @@ int howManyBits(int x) {
  *   Max ops: 30
  *   Rating: 4
  */
-unsigned floatScale2(unsigned uf) {
-  unsigned sign = (uf>>31) & 0x1;
-  unsigned exp = (uf>>23) & 0xff;
+unsigned floatScale2(unsigned uf)
+{
+  unsigned sign = (uf >> 31) & 0x1;
+  unsigned exp = (uf >> 23) & 0xff;
   unsigned frac = uf & 0x7fffff;
-  //0
-  if((exp==0) && (frac==0))
+  // 0
+  if ((exp == 0) && (frac == 0))
     return uf;
-  //NaN 或 无穷大
-  if(exp==0xff)
+  // NaN 或 无穷大
+  if (exp == 0xff)
     return uf;
-  //denormalize
-  if(exp==0){
-    //E = 1-127=-126
-    //frac等于小数字段的值，规格化的时候frac+1才是小数字段的值
+  // denormalize
+  if (exp == 0)
+  {
+    // E = 1-127=-126
+    // frac等于小数字段的值，规格化的时候frac+1才是小数字段的值
     frac = frac << 1;
-    return (sign<<31) | frac;
+    return (sign << 31) | frac;
   }
-  //normalize
+  // normalize
   exp++;
-  return (sign<<31) | (exp<<23) | (frac);
+  return (sign << 31) | (exp << 23) | (frac);
 }
-/* 
+/*
  * floatFloat2Int - Return bit-level equivalent of expression (int) f
  *   for floating point argument f.
  *   Argument is passed as unsigned int, but
@@ -352,43 +363,45 @@ unsigned floatScale2(unsigned uf) {
  *   Max ops: 30
  *   Rating: 4
  */
-int floatFloat2Int(unsigned uf) {
+int floatFloat2Int(unsigned uf)
+{
   //我在我的虚拟机上运行错误，在公司的Linux上(ubuntu)没有问题
   //终于发现问题了，383和385写返回了
-  unsigned sign = (uf>>31) & 0x1;
-  unsigned exp = (uf>>23) & 0xff;
+  unsigned sign = (uf >> 31) & 0x1;
+  unsigned exp = (uf >> 23) & 0xff;
   unsigned frac = uf & 0x7fffff;
-  //0
-  if((exp==0)&&(frac==0))
+  // 0
+  if ((exp == 0) && (frac == 0))
     return 0;
-  //NaN 或 无穷大
-  if(exp==0xff)
-    return 1<<31;
-  //denormalize
-  if(exp==0){
-    //E = 1-127=-126
-    //0.xxxx < 1
+  // NaN 或 无穷大
+  if (exp == 0xff)
+    return 1 << 31;
+  // denormalize
+  if (exp == 0)
+  {
+    // E = 1-127=-126
+    // 0.xxxx < 1
     return 0;
   }
-  //normalize
+  // normalize
   int E = exp - 127;
-  //M 1.xxxxxx
-  frac = frac | (1<<23);
-  if(E>31)
-    return 1<<31;
-  else if(E<0)
-    return 0; //1.xxx/2  -> 0
+  // M 1.xxxxxx
+  frac = frac | (1 << 23);
+  if (E > 31)
+    return 1 << 31;
+  else if (E < 0)
+    return 0; // 1.xxx/2  -> 0
 
-  if(E>=23)
-    frac = frac << (E-23);
+  if (E >= 23)
+    frac = frac << (E - 23);
   else
-    frac = frac >> (23-E);
+    frac = frac >> (23 - E);
 
-  if(sign)
-    return (~frac)+1;
+  if (sign)
+    return (~frac) + 1;
   return frac;
 }
-/* 
+/*
  * floatPower2 - Return bit-level equivalent of the expression 2.0^x
  *   (2.0 raised to the power x) for any 32-bit integer x.
  *
@@ -396,34 +409,35 @@ int floatFloat2Int(unsigned uf) {
  *   representation as the single-precision floating-point number 2.0^x.
  *   If the result is too small to be represented as a denorm, return
  *   0. If too large, return +INF.
- * 
- *   Legal ops: Any integer/unsigned operations incl. ||, &&. Also if, while 
- *   Max ops: 30 
+ *
+ *   Legal ops: Any integer/unsigned operations incl. ||, &&. Also if, while
+ *   Max ops: 30
  *   Rating: 4
  */
-unsigned floatPower2(int x) {
+unsigned floatPower2(int x)
+{
   /*
-  * 非规格化:
-  * min: 2^-126 * 2^-23  == 2^-149
-  * max: (2^-1 + 2^-2 + ... + 2^-23)*2^-126
-  */
+   * 非规格化:
+   * min: 2^-126 * 2^-23  == 2^-149
+   * max: (2^-1 + 2^-2 + ... + 2^-23)*2^-126
+   */
   /*
-  * 规格化：
-  * min: 0000 0001 -> 2^(1-127)  == 2^-126
-  * max: 1111 1110 -> 2^(254-127) == 2^127 * (1+2^-1+2^-2+...+2^-23)  < 2^128
-  */
+   * 规格化：
+   * min: 0000 0001 -> 2^(1-127)  == 2^-126
+   * max: 1111 1110 -> 2^(254-127) == 2^127 * (1+2^-1+2^-2+...+2^-23)  < 2^128
+   */
   //我在我的虚拟机上运行超时了
-  if(x<-149)
+  if (x < -149)
     return 0;
-  else if(x<-126)
+  else if (x < -126)
   {
-    int shift =23+(x+126);
-    return 1<<shift;
+    int shift = 23 + (x + 126);
+    return 1 << shift;
   }
-  else if(x<128)
+  else if (x < 128)
   {
-    int expr = x+127;
-    return expr<<23;
+    int expr = x + 127;
+    return expr << 23;
   }
   else
     return 0xff << 23;
